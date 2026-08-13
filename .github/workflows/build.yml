@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "15 4,5 * * *"
-    
+
 # --- 定义全局变量 ---
 env:
   ACR_REGISTRY: "registry.cn-hangzhou.aliyuncs.com" # 注册中心地址
@@ -49,3 +49,28 @@ jobs:
             ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # 原有配置保持不变，在build-and-push任务末尾新增以下步骤
+      # 步骤1：从已构建的镜像中导出terax可执行文件到宿主机工作目录
+      - name: Extract terax binary from built image
+        run: |
+          docker create --name terax-temp ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}:${{ steps.get_latest_release.outputs.latest_version }}
+          docker cp terax-temp:/usr/local/bin/terax ./terax-${{ steps.get_latest_release.outputs.latest_version }}
+          docker rm terax-temp
+
+      # 步骤2：安装GitHub Release上传依赖工具
+      - name: Install gh release upload tool
+        run: |
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update && sudo apt install gh -y
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 步骤3：自动上传可执行文件到对应版本的Release
+      - name: Upload terax binary to GitHub Releases
+        run: |
+          # 若对应版本Release不存在则自动创建，存在则直接追加上传文件
+          gh release create ${{ steps.get_latest_release.outputs.latest_version }} ./terax-${{ steps.get_latest_release.outputs.latest_version }} --title "Terax AI v${{ steps.get_latest_release.outputs.latest_version }}" --notes "Auto built binary from Docker workflow"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
