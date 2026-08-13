@@ -11,9 +11,9 @@ RUN apt update && apt install -y --no-install-recommends \
     && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 # 替换原有Node.js安装步骤
-RUN apt remove -y nodejs libnode72 && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt install -y nodejs npm && npm install -g pnpm@8.15.0
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \
+    . "$HOME/.nvm/nvm.sh" && \
+    nvm install 24 && corepack enable pnpm
 
 # 克隆源码并执行生产构建
 RUN git clone https://github.com/crynta/terax-ai.git /opt/terax-ai
