@@ -7,9 +7,12 @@ ENV PATH="/root/.cargo/bin:$PATH"
 
 # 仅安装编译必需依赖，不携带冗余运行库
 RUN apt update && apt install -y --no-install-recommends \
-    build-essential libssl-dev libwebkit2gtk-4.1-dev curl git nodejs npm \
-    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
-    && npm install -g pnpm
+    build-essential libssl-dev libwebkit2gtk-4.1-dev curl git \
+    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+# 替换原有Node.js安装步骤
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt install -y nodejs && npm install -g pnpm@8.15.0
 
 # 克隆源码并执行生产构建
 RUN git clone https://github.com/crynta/terax-ai.git /opt/terax-ai
