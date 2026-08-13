@@ -20,7 +20,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | b
 # 克隆源码并执行生产构建
 RUN git clone https://github.com/crynta/terax-ai.git /opt/terax-ai
 WORKDIR /opt/terax-ai
-RUN . "$HOME/.nvm/nvm.sh" && pnpm install && pnpm tauri build --bundles none
+RUN . "$HOME/.nvm/nvm.sh" && pnpm install && pnpm tauri build
 
 # 第二阶段：轻量化运行阶段，仅保留运行必需组件
 FROM debian:bookworm-slim
