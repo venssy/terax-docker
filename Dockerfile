@@ -11,7 +11,8 @@ RUN apt update && apt install -y --no-install-recommends \
     && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 # 替换原有Node.js安装步骤
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+RUN apt remove -y nodejs libnode72 && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt install -y nodejs npm && npm install -g pnpm@8.15.0
 
 # 克隆源码并执行生产构建
