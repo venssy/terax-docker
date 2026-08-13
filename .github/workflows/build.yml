@@ -4,7 +4,9 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
-
+  schedule:
+    - cron: "15 4,5 * * *"
+    
 # --- 定义全局变量 ---
 env:
   ACR_REGISTRY: "registry.cn-hangzhou.aliyuncs.com" # 注册中心地址
