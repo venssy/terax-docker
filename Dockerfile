@@ -7,7 +7,7 @@ ENV PATH="/root/.cargo/bin:$PATH"
 
 # 仅安装编译必需依赖，不携带冗余运行库
 RUN apt update && apt install -y --no-install-recommends \
-    build-essential libssl-dev libwebkit2gtk-4.1-dev curl git \
+    build-essential libssl-dev libwebkit2gtk-4.1-dev curl git xdg-utils \
     ca-certificates \
     && update-ca-certificates \
     && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -30,7 +30,7 @@ ENV LANG=en_US.UTF-8
 
 # 仅安装Terax运行必需的最小依赖
 RUN apt update && apt install -y --no-install-recommends \
-    libwebkit2gtk-4.0-37 libgtk-3-0 libayatana-appindicator3-1 \
+    libwebkit2gtk-4.0-37 libgtk-3-0 libayatana-appindicator3-1 xdg-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # 仅从构建阶段拷贝最终生成的可执行文件，不携带源码和编译缓存
