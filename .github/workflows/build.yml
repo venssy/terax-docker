@@ -1,0 +1,49 @@
+name: Docker Build and Push (Variable Version)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+# --- 定义全局变量 ---
+env:
+  ACR_REGISTRY: "registry.cn-hangzhou.aliyuncs.com" # 注册中心地址
+  IMAGE_NAMESPACE: "venssy/terax"    # 镜像命名空间与基础名 
+# ------------------
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 新增步骤：拉取Terax AI官方仓库最新正式Release版本号
+      - name: Get latest Terax AI release tag
+        id: get_latest_release
+        run: |
+          # 过滤掉预发布版本，仅获取最新正式Release号，自动移除前缀v
+          LATEST_TAG=$(curl -s https://api.github.com/repos/crynta/terax-ai/releases/latest | grep -o '"tag_name": ".*"' | cut -d '"' -f 4 | sed 's/^v//')
+          echo "latest_version=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to ACR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # 同时打两个标签：固定最新版本号 + latest动态标签
+          tags: |
+            ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}:${{ steps.get_latest_release.outputs.latest_version }}
+            ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
