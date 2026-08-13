@@ -24,8 +24,8 @@ ENV LANG=en_US.UTF-8
 
 # 仅安装Terax运行必需的最小依赖
 RUN apt update && apt install -y --no-install-recommends \
-    libwebkit2gtk-4.1-37 libgtk-3-0 libayatana-appindicator3-1 \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    libwebkit2gtk-4.0-37 libgtk-3-0 libayatana-appindicator3-1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # 仅从构建阶段拷贝最终生成的可执行文件，不携带源码和编译缓存
 COPY --from=builder /opt/terax-ai/src-tauri/target/release/terax /usr/local/bin/terax
