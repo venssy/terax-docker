@@ -10,7 +10,6 @@ RUN apt update && apt install -y --no-install-recommends \
     build-essential libssl-dev libwebkit2gtk-4.1-dev curl git \
     ca-certificates \
     && update-ca-certificates \
-    && ln -s /etc/ssl/certs/ca-bundle.crt /etc/ssl/certs/ca-certificates.crt \
     && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 # 替换原有Node.js安装步骤
